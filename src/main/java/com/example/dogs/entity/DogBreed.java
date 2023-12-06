@@ -26,7 +26,7 @@ public class DogBreed {
 
     @Column(nullable = false)
     private String description;
-    @Column(nullable = false)
+
     private int lifespanMin;
 
     private int lifespanMax;
@@ -43,7 +43,7 @@ public class DogBreed {
     @Enumerated(EnumType.STRING)
     private FurType furType;
 
-    @OneToMany(mappedBy = "dogBreed", fetch = FetchType.EAGER,
+    @OneToMany(mappedBy = "dogBreed",
             cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DogPicture> dogPictures;
 }

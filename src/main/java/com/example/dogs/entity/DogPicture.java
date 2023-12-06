@@ -17,7 +17,6 @@ public class DogPicture {
     private long id;
 
     // annotation that "tells" JPA that this column will have big data, like pictures
-    @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image;
 
