@@ -50,7 +50,7 @@ public class DogBreedServiceImpl implements DogBreedService {
                 () -> new RuntimeException("Breed not found")
         );
 
-
+        //TODO: sprawdź czy coś nie jest nullem
         dogBreed.setId(breedId);
         dogBreed.setName(dogBreedDto.getName());
         dogBreed.setDescription(dogBreedDto.getDescription());
@@ -74,7 +74,7 @@ public class DogBreedServiceImpl implements DogBreedService {
                 () -> new RuntimeException("Dog breed with id"+breedId+"doesn't already exist"));
         dogBreedRepository.deleteById(breedId);
 
-        return "Dog breed with id"+breedId+"deleted successfully";
+        return "Dog breed with id "+breedId+" deleted successfully";
     }
 
     private DogBreed mapToEntity(DogBreedDto dogBreedDto) {

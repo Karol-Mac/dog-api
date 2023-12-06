@@ -31,17 +31,20 @@ public class DogBreedController {
 
     @PostMapping("/dogs")
     public ResponseEntity<DogBreedDto> createDog(@RequestBody DogBreedDto dogBreedDto){
-        return new ResponseEntity<>(dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/dogs/{breedId}")
     public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId, @RequestBody DogBreedDto dogBreedDto){
-        return ResponseEntity.ok(dogBreedService.updateDogBreed(breedId, dogBreedDto));
+        return ResponseEntity.ok(
+                dogBreedService.updateDogBreed(breedId, dogBreedDto));
     }
 
     @DeleteMapping("/dogs/{breedId}")
     public ResponseEntity<String> deleteDog(@PathVariable Long breedId){
-        return ResponseEntity.ok(dogBreedService.deleteDogBreed(breedId));
+        return ResponseEntity.ok(
+                dogBreedService.deleteDogBreed(breedId));
     }
 
 }
