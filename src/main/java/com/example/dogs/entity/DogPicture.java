@@ -24,3 +24,7 @@ public class DogPicture {
     @JoinColumn(name = "dog_breeds_id")
     private DogBreed dogBreed;
 }
+
+//TODO: dodaj DogPictureService i controller
+// klasa DogPictureDto jest niepotrzebna
+// to DogPicture ma byc powiazana z konkretna rasa - nie odwrotnie.

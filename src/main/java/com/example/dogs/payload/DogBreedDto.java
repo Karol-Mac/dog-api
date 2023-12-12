@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,8 +15,6 @@ public class DogBreedDto {
     private long id;
     private String name;
     private String description;
-
-    private Set<DogPictureDto> dogPictures;
 
     private int lifespanMin;
 
