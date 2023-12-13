@@ -7,9 +7,12 @@ import java.util.List;
 
 public interface DogPictureService {
 
-    byte[] addDogPicture(MultipartFile image, long breedId) throws IOException;
+    String addDogPicture(MultipartFile image, long breedId) throws IOException;
 
-    byte[] getDogPicture(long pictureId);
+    String addMultipleDogPictures(MultipartFile[] images, long breedId) throws IOException;
+
+
+    byte[] getDogPicture(long breedId, long pictureId);
 
     List<byte[]> getBreedPictures(long breedId);
 
