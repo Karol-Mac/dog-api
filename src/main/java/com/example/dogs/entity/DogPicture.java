@@ -22,6 +22,7 @@ public class DogPicture {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image;
 
+    private String fileName;
     @ManyToOne
     @JoinColumn(name = "dog_breeds_id")
     private DogBreed dogBreed;

@@ -11,13 +11,11 @@ public interface DogPictureService {
 
     String addMultipleDogPictures(MultipartFile[] images, long breedId) throws IOException;
 
-
     byte[] getDogPicture(long breedId, long pictureId);
 
     List<byte[]> getBreedPictures(long breedId);
 
     String deleteDogPicture(long pictureId);
 
-    byte[] updateDogPicture(long pictureId, MultipartFile image);
-
+    byte[] updateDogPicture(long pictureId, MultipartFile image) throws IOException;
 }

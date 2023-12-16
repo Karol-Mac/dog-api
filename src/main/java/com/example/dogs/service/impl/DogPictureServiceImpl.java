@@ -33,6 +33,7 @@ public class DogPictureServiceImpl implements DogPictureService {
         DogPicture dogPicture = DogPicture.builder()
                     .dogBreed(dogBreed)
                     .image(image.getBytes())
+                    .fileName(image.getOriginalFilename())
                     .build();
 
         dogPictureRepository.save(dogPicture);
@@ -40,16 +41,16 @@ public class DogPictureServiceImpl implements DogPictureService {
         return "Picture "+image.getOriginalFilename()+" added successfully";
     }
 
-
-
     @Override
-    public String addMultipleDogPictures(MultipartFile[] images, long breedId) throws IOException {
+    public String addMultipleDogPictures(MultipartFile[] images,
+                                         long breedId) throws IOException {
         DogBreed dogBreed = getDogBreed(breedId);
 
         for (MultipartFile image: images) {
             DogPicture dogPicture = DogPicture.builder()
                     .dogBreed(dogBreed)
                     .image(image.getBytes())
+                    .fileName(image.getOriginalFilename())
                     .build();
 
             dogPictureRepository.save(dogPicture);
@@ -58,12 +59,11 @@ public class DogPictureServiceImpl implements DogPictureService {
     }
 
     @Override
-    public byte[] getDogPicture(long breedId, long pictureId) {
+    public byte[] getDogPicture(long breedId, long pictureId){
 
         DogBreed dogBreed = getDogBreed(breedId);
 
-        DogPicture dogPicture = dogPictureRepository.findById(pictureId).orElseThrow(
-                () -> new DogApiException("Picture with id = " + pictureId + " not found"));
+        DogPicture dogPicture = getDogPicture(pictureId);
 
         if(dogPicture.getDogBreed().getId() != dogBreed.getId()) {
             throw new DogApiException("Picture does not belong to breed with id = " + breedId);
@@ -71,6 +71,8 @@ public class DogPictureServiceImpl implements DogPictureService {
 
         return dogPicture.getImage();
     }
+
+
 
     @Override
     public List<byte[]> getBreedPictures(long breedId) {
@@ -84,19 +86,34 @@ public class DogPictureServiceImpl implements DogPictureService {
     }
 
     @Override
-    public String deleteDogPicture(long pictureId) {
-        return null;
+    public byte[] updateDogPicture(long pictureId, MultipartFile image) throws IOException {
+        DogPicture dogPicture = getDogPicture(pictureId);
+
+        dogPicture.setFileName(image.getOriginalFilename());
+        dogPicture.setImage(image.getBytes());
+
+        dogPictureRepository.save(dogPicture);
+
+        return dogPicture.getImage();
     }
 
     @Override
-    public byte[] updateDogPicture(long pictureId, MultipartFile image) {
-        return new byte[0];
-    }
+    public String deleteDogPicture(long pictureId) {
+        DogPicture dogPicture = getDogPicture(pictureId);
 
+        dogPictureRepository.delete(dogPicture);
+
+        return "Picture "+dogPicture.getFileName()+" deleted successfully";
+    }
 
     private DogBreed getDogBreed(long breedId) {
         return dogBreedRepository.findById(breedId).orElseThrow(
                 () -> new DogApiException("Breed with id = " + breedId + " not found")
         );
+    }
+
+    private DogPicture getDogPicture(long pictureId) {
+        return dogPictureRepository.findById(pictureId).orElseThrow(
+                () -> new DogApiException("Picture with id = " + pictureId + " not found"));
     }
 }

@@ -49,7 +49,6 @@ public class DogPictureController {
 
         return ResponseEntity.ok(dogPictureService.getBreedPictures(breedId));
     }
-
     // THIS ONE DOESN'T WORK
 //    @GetMapping
 //    public ResponseEntity<List<?>> getAllPictures(@PathVariable long breedId){
@@ -61,5 +60,21 @@ public class DogPictureController {
 //                .body(images);
 //    }
 
+    public ResponseEntity<?> updateDogPicture(@PathVariable long breedId,
+                                       @PathVariable long pictureId,
+                                       @RequestParam MultipartFile image) throws IOException {
+
+        byte[] data = dogPictureService.updateDogPicture(pictureId, image);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
+                .body(data);
+    }
+
+    @DeleteMapping("/{pictureId}")
+    public ResponseEntity<String> deleteDogPicture(@PathVariable long breedId,
+                                                   @PathVariable long pictureId){
+        return ResponseEntity.ok(dogPictureService.deleteDogPicture(pictureId));
+    }
 
 }
