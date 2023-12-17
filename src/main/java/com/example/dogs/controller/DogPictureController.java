@@ -1,5 +1,7 @@
 package com.example.dogs.controller;
 
+import com.example.dogs.entity.DogPicture;
+import com.example.dogs.payload.DogPictureDto;
 import com.example.dogs.service.DogPictureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,13 +24,13 @@ public class DogPictureController {
     }
 
     @PostMapping("/single")
-    ResponseEntity<String> addPicture(@RequestParam("image") MultipartFile image,
+    ResponseEntity<Long> addPicture(@RequestParam("image") MultipartFile image,
                                       @PathVariable long breedId) throws IOException {
         return ResponseEntity.ok(dogPictureService.addDogPicture(image, breedId));
     }
 
     @PostMapping
-    ResponseEntity<String> addMultiplePictures(@RequestParam("images") MultipartFile[] image,
+    ResponseEntity<List<Long>> addMultiplePictures(@RequestParam("images") MultipartFile[] image,
                                       @PathVariable long breedId) throws IOException {
         return ResponseEntity.ok(dogPictureService.addMultipleDogPictures(image, breedId));
     }
@@ -44,8 +46,15 @@ public class DogPictureController {
                 .body(data);
     }
 
+    @GetMapping("/{pictureId}/object")
+    ResponseEntity<DogPictureDto> getObjectBById(@PathVariable long breedId,
+                                                 @PathVariable long pictureId ) {
+
+        return ResponseEntity.ok(dogPictureService.retrieveDogPicture(breedId, pictureId));
+    }
+
     @GetMapping
-    ResponseEntity<List<byte[]>> getAllPictures(@PathVariable long breedId){
+    ResponseEntity<List<DogPictureDto>> getAllPictures(@PathVariable long breedId){
 
         return ResponseEntity.ok(dogPictureService.getBreedPictures(breedId));
     }

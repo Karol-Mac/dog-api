@@ -3,9 +3,12 @@ package com.example.dogs.service.impl;
 import com.example.dogs.entity.DogBreed;
 import com.example.dogs.entity.DogPicture;
 import com.example.dogs.exceptions.DogApiException;
+import com.example.dogs.payload.DogBreedDto;
+import com.example.dogs.payload.DogPictureDto;
 import com.example.dogs.repositories.DogBreedRepository;
 import com.example.dogs.repositories.DogPictureRepository;
 import com.example.dogs.service.DogPictureService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,14 +22,17 @@ public class DogPictureServiceImpl implements DogPictureService {
 
     private final DogBreedRepository dogBreedRepository;
 
+    private final ModelMapper mapper;
+
     public DogPictureServiceImpl(DogPictureRepository dogPictureRepository,
-                                 DogBreedRepository dogBreedRepository) {
+                                 DogBreedRepository dogBreedRepository, ModelMapper mapper) {
         this.dogPictureRepository = dogPictureRepository;
         this.dogBreedRepository = dogBreedRepository;
+        this.mapper = mapper;
     }
 
     @Override
-    public String addDogPicture(MultipartFile image, long breedId) throws IOException {
+    public Long addDogPicture(MultipartFile image, long breedId) throws IOException {
 
         DogBreed dogBreed = getDogBreed(breedId);
 
@@ -38,14 +44,14 @@ public class DogPictureServiceImpl implements DogPictureService {
 
         dogPictureRepository.save(dogPicture);
 
-        return "Picture "+image.getOriginalFilename()+" added successfully";
+        return dogPicture.getId();
     }
 
     @Override
-    public String addMultipleDogPictures(MultipartFile[] images,
+    public List<Long> addMultipleDogPictures(MultipartFile[] images,
                                          long breedId) throws IOException {
         DogBreed dogBreed = getDogBreed(breedId);
-
+        List<Long> ids;
         for (MultipartFile image: images) {
             DogPicture dogPicture = DogPicture.builder()
                     .dogBreed(dogBreed)
@@ -55,7 +61,24 @@ public class DogPictureServiceImpl implements DogPictureService {
 
             dogPictureRepository.save(dogPicture);
         }
-        return "Pictures for breed \""+ dogBreed.getName()+"\" added successfully";
+
+        List<DogPicture> dogPictures = dogPictureRepository.findAll();
+
+        return dogPictures.stream()
+                .filter(picture -> picture.getDogBreed().getId() == breedId)
+                .map(DogPicture::getId)
+                .toList();
+    }
+
+    @Override
+    public DogPictureDto retrieveDogPicture(long breedId, long pictureId) {
+        DogPicture dogPicture = getDogPicture(pictureId);
+        DogBreed dogBreed = getDogBreed(breedId);
+
+        if(dogPicture.getDogBreed().getId() != dogBreed.getId())
+            throw new DogApiException("Picture does not belong to breed with id = " + breedId);
+
+        return mapper.map(dogPicture, DogPictureDto.class);
     }
 
     @Override
@@ -75,13 +98,13 @@ public class DogPictureServiceImpl implements DogPictureService {
 
 
     @Override
-    public List<byte[]> getBreedPictures(long breedId) {
+    public List<DogPictureDto> getBreedPictures(long breedId) {
 
         List<DogPicture> dogPictures = dogPictureRepository.findAll();
 
         return dogPictures.stream()
                 .filter(picture -> picture.getDogBreed().getId() == breedId)
-                .map(DogPicture::getImage)
+                .map(dogPicture -> mapper.map(dogPicture, DogPictureDto.class))
                 .toList();
     }
 
