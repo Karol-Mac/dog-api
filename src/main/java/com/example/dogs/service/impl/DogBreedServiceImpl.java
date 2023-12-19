@@ -77,6 +77,39 @@ public class DogBreedServiceImpl implements DogBreedService {
         return "Dog breed with id "+breedId+" deleted successfully";
     }
 
+    @Override
+    public List<DogBreedDto> filterDogBreeds(List<String> sizes,
+                                          List<String> barkingFrequencies, List<String> furTypes,
+                                          List<String> behaviourTypes) {
+
+        List<DogBreed> dogBreeds = dogBreedRepository.findAll();
+
+        return dogBreeds.stream()
+                .filter(dogBreed -> filterBySize(dogBreed, sizes))
+                .filter(dogBreed -> filterByBarkingFrequency(dogBreed, barkingFrequencies))
+                .filter(dogBreed -> filterByFurType(dogBreed, furTypes))
+                .filter(dogBreed -> filterByBehaviourType(dogBreed, behaviourTypes))
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    private boolean filterBySize(DogBreed dogBreed, List<String> sizes) {
+        return sizes == null || sizes.isEmpty() || sizes.contains(dogBreed.getDogSize().getSize());
+    }
+
+    private boolean filterByBarkingFrequency(DogBreed dogBreed, List<String> barkingFrequencies) {
+        return barkingFrequencies == null || barkingFrequencies.isEmpty() || barkingFrequencies.contains(dogBreed.getBarkingFrequency().getFrequency());
+    }
+
+    private boolean filterByFurType(DogBreed dogBreed, List<String> furTypes) {
+        return furTypes == null || furTypes.isEmpty() || furTypes.contains(dogBreed.getFurType().getFur());
+    }
+
+    private boolean filterByBehaviourType(DogBreed dogBreed, List<String> behaviourTypes) {
+        return behaviourTypes == null || behaviourTypes.isEmpty() || behaviourTypes.contains(dogBreed.getBehaviourType().getBehavior());
+    }
+
+
     private DogBreed mapToEntity(DogBreedDto dogBreedDto) {
         return mapper.map(dogBreedDto, DogBreed.class);
     }
