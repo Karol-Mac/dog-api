@@ -1,14 +1,16 @@
 package com.example.dogs.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 
+@Getter
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
 public class DogApiNotFoundException extends RuntimeException{
-    private HttpStatus status;
-    private String resource;
-    private String fieldName;
+    private final HttpStatus status;
+    private final String resource;
+    private final String fieldName;
 
     public DogApiNotFoundException(HttpStatus status , String resource, String fieldName) {
         super(resource+" is not found with "+fieldName);
@@ -16,17 +18,4 @@ public class DogApiNotFoundException extends RuntimeException{
         this.fieldName = fieldName;
         this.status = status;
     }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-
 }

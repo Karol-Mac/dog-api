@@ -11,8 +11,8 @@ import java.util.List;
 
 @Service
 public class DogBreedFilter {
-
     private static final double MINIMUM_SIMILARITY_THRESHOLD = 70;
+
     private final DogBreedRepository dogBreedRepository;
     private final ModelMapper mapper;
 
@@ -21,24 +21,24 @@ public class DogBreedFilter {
         this.mapper = mapper;
     }
 
-    public List<DogBreedDto> filterDogBreeds(List<FilterPreference> filterPreferenceList) {
+    public List<DogBreedDto> filterDogBreeds(List<UserPreference> userPreferenceList) {
         List<DogBreed> dogBreeds = dogBreedRepository.findAll();
 
-        if (filterPreferenceList.isEmpty()) {
+        if (userPreferenceList.isEmpty()) {
             return dogBreeds.stream().map(this::mapToDto).toList();
         }
 
         return dogBreeds.stream()
-                .filter(dogBreed -> isDogBreedAccepted(dogBreed, filterPreferenceList))
+                .filter(dogBreed -> isDogBreedAccepted(dogBreed, userPreferenceList))
                 .map(this::mapToDto)
                 .toList();
     }
 
-    private boolean isDogBreedAccepted(DogBreed dogBreed, List<FilterPreference> filterPreferenceList) {
+    private boolean isDogBreedAccepted(DogBreed dogBreed, List<UserPreference> userPreferenceList) {
         int totalScore = 0;
-        int maxPossibleScore = filterPreferenceList.size() * 100;
+        int maxPossibleScore = userPreferenceList.size() * 100;
 
-        totalScore += filterPreferenceList.stream()
+        totalScore += userPreferenceList.stream()
                 .mapToInt(preference -> calculateScoreForCriteria(dogBreed, preference)).sum();
 
 
@@ -46,7 +46,7 @@ public class DogBreedFilter {
         return ((double) totalScore / maxPossibleScore) * 100 >= MINIMUM_SIMILARITY_THRESHOLD;
     }
 
-    private int calculateScoreForCriteria(DogBreed dogBreed, FilterPreference preference) {
+    private int calculateScoreForCriteria(DogBreed dogBreed, UserPreference preference) {
         return switch (preference.getPreferencesType()) {
             case SIZE ->
                     dogBreed.getDogSize().getSize().equals(preference.getValue()) ? 100 : 0;

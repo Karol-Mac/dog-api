@@ -2,7 +2,7 @@ package com.example.dogs.controller;
 
 
 import com.example.dogs.filters.DogBreedFilter;
-import com.example.dogs.filters.FilterPreference;
+import com.example.dogs.filters.UserPreference;
 import com.example.dogs.payload.DogBreedDto;
 import com.example.dogs.service.DogBreedService;
 import org.springframework.http.HttpStatus;
@@ -59,8 +59,8 @@ public class DogBreedController {
     }
 
     @GetMapping("/filterPreference")
-    public List<DogBreedDto> filterDogs(@RequestBody List<FilterPreference> filterPreferenceList) {
-        return dogBreedFilter.filterDogBreeds(filterPreferenceList);
+    public List<DogBreedDto> filterDogs(@RequestBody List<UserPreference> userPreferenceList) {
+        return dogBreedFilter.filterDogBreeds(userPreferenceList);
     }
 
 
