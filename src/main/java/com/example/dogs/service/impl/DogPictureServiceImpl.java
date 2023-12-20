@@ -2,13 +2,13 @@ package com.example.dogs.service.impl;
 
 import com.example.dogs.entity.DogBreed;
 import com.example.dogs.entity.DogPicture;
-import com.example.dogs.exceptions.DogApiException;
-import com.example.dogs.payload.DogBreedDto;
+import com.example.dogs.exception.DogApiBadRequestException;
 import com.example.dogs.payload.DogPictureDto;
 import com.example.dogs.repositories.DogBreedRepository;
 import com.example.dogs.repositories.DogPictureRepository;
 import com.example.dogs.service.DogPictureService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,7 +51,6 @@ public class DogPictureServiceImpl implements DogPictureService {
     public List<Long> addMultipleDogPictures(MultipartFile[] images,
                                          long breedId) throws IOException {
         DogBreed dogBreed = getDogBreed(breedId);
-        List<Long> ids;
         for (MultipartFile image: images) {
             DogPicture dogPicture = DogPicture.builder()
                     .dogBreed(dogBreed)
@@ -75,9 +74,6 @@ public class DogPictureServiceImpl implements DogPictureService {
         DogPicture dogPicture = getDogPicture(pictureId);
         DogBreed dogBreed = getDogBreed(breedId);
 
-        if(dogPicture.getDogBreed().getId() != dogBreed.getId())
-            throw new DogApiException("Picture does not belong to breed with id = " + breedId);
-
         return mapper.map(dogPicture, DogPictureDto.class);
     }
 
@@ -87,10 +83,6 @@ public class DogPictureServiceImpl implements DogPictureService {
         DogBreed dogBreed = getDogBreed(breedId);
 
         DogPicture dogPicture = getDogPicture(pictureId);
-
-        if(dogPicture.getDogBreed().getId() != dogBreed.getId()) {
-            throw new DogApiException("Picture does not belong to breed with id = " + breedId);
-        }
 
         return dogPicture.getImage();
     }
@@ -131,12 +123,12 @@ public class DogPictureServiceImpl implements DogPictureService {
 
     private DogBreed getDogBreed(long breedId) {
         return dogBreedRepository.findById(breedId).orElseThrow(
-                () -> new DogApiException("Breed with id = " + breedId + " not found")
+                () -> new DogApiBadRequestException(HttpStatus.BAD_REQUEST,"Breed with id = " + breedId + " not found")
         );
     }
 
     private DogPicture getDogPicture(long pictureId) {
         return dogPictureRepository.findById(pictureId).orElseThrow(
-                () -> new DogApiException("Picture with id = " + pictureId + " not found"));
+                () -> new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Picture with id = " + pictureId + " not found"));
     }
 }

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FilterPreference {
+public class UserPreference {
     private PreferencesType preferencesType;
 
     private String value;
