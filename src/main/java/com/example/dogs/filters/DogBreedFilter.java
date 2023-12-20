@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class DogBreedFilter {
-    private static final double MINIMUM_SIMILARITY_THRESHOLD = 40;
+    private static final double MINIMUM_SIMILARITY_THRESHOLD = 50;
 
     private final DogBreedRepository dogBreedRepository;
     private final ModelMapper mapper;
