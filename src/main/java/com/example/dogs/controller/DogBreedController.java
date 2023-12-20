@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+import com.example.dogs.exception.DogApiBadRequestException;
+import com.example.dogs.exception.DogApiNotFoundException;
+
 @RestController
 @RequestMapping("/api/v1/dogs")
 public class DogBreedController {
@@ -26,12 +30,20 @@ public class DogBreedController {
 
     @GetMapping
     public ResponseEntity<List<DogBreedDto>> getDogs(){
-        return ResponseEntity.ok(dogBreedService.getAllDogBreeds());
+        try {
+            return ResponseEntity.ok(dogBreedService.getAllDogBreeds());
+        }catch(RuntimeException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to get any DogBreed");
+        }
     }
 
     @GetMapping("/{breedId}")
     public ResponseEntity<DogBreedDto> getDogById(@PathVariable Long breedId){
-        return ResponseEntity.ok(dogBreedService.getDogBreed(breedId));
+        try {
+            return ResponseEntity.ok(dogBreedService.getDogBreed(breedId));
+        }catch(RuntimeException e){
+            throw new DogApiNotFoundException(HttpStatus.NOT_FOUND , "Failure get : BreedId == ", "/dogs/"+breedId);
+        }
     }
 
 
@@ -55,20 +67,29 @@ public class DogBreedController {
 
     @PostMapping
     public ResponseEntity<DogBreedDto> createDog(@RequestBody DogBreedDto dogBreedDto){
-        return new ResponseEntity<>(
-                dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
+        try{
+            return new ResponseEntity<>(dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
+        }catch(RuntimeException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to create dog breed");
+        }
     }
 
     @PutMapping("/{breedId}")
     public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId, @RequestBody DogBreedDto dogBreedDto){
-        return ResponseEntity.ok(
-                dogBreedService.updateDogBreed(breedId, dogBreedDto));
+        try{
+            return ResponseEntity.ok(dogBreedService.updateDogBreed(breedId, dogBreedDto));
+        }catch(RuntimeException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to update dog breed with id == "+breedId);
+        }
     }
 
     @DeleteMapping("/{breedId}")
     public ResponseEntity<String> deleteDog(@PathVariable Long breedId){
-        return ResponseEntity.ok(
-                dogBreedService.deleteDogBreed(breedId));
+        try{
+            return ResponseEntity.ok(dogBreedService.deleteDogBreed(breedId));
+        }catch(RuntimeException e){
+            throw new DogApiNotFoundException(HttpStatus.NOT_FOUND , "Failure delete : BreedId == ", "/dogs/"+breedId);
+        }
     }
 
 }
