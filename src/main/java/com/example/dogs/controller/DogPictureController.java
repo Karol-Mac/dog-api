@@ -4,6 +4,7 @@ import com.example.dogs.exception.DogApiBadRequestException;
 import com.example.dogs.exception.DogApiNotFoundException;
 import com.example.dogs.payload.DogPictureDto;
 import com.example.dogs.service.DogPictureService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,8 @@ public class DogPictureController {
     }
 
     @PostMapping("/single")
-    ResponseEntity<Long> addSinglePicture(@RequestParam("image") MultipartFile image,
+    ResponseEntity<Long> addSinglePicture(@RequestParam("image")
+                                          @NotNull(message = "image can not be null") MultipartFile image,
                                           @PathVariable long breedId) {
         try{
             return ResponseEntity.ok(dogPictureService.addDogPicture(image, breedId));
@@ -40,7 +42,8 @@ public class DogPictureController {
 
 
     @PostMapping
-    ResponseEntity<List<Long>> addMultiplePictures(@RequestParam("images") MultipartFile[] image,
+    ResponseEntity<List<Long>> addMultiplePictures(@RequestParam("images")
+                                      @NotNull(message = "images can not be null") MultipartFile[] image,
                                       @PathVariable long breedId) throws IOException {
         return ResponseEntity.ok(dogPictureService.addMultipleDogPictures(image, breedId));
     }
@@ -91,7 +94,7 @@ public class DogPictureController {
 
     public ResponseEntity<?> updateDogPicture(@PathVariable long breedId,
                                        @PathVariable long pictureId,
-                                       @RequestParam MultipartFile image) throws IOException {
+                                       @RequestParam @NotNull(message = "add file to update") MultipartFile image) throws IOException {
 
         byte[] data = dogPictureService.updateDogPicture(pictureId, image);
 

@@ -5,6 +5,7 @@ import com.example.dogs.filters.DogBreedFilter;
 import com.example.dogs.filters.UserPreference;
 import com.example.dogs.payload.DogBreedDto;
 import com.example.dogs.service.DogBreedService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +67,7 @@ public class DogBreedController {
 
 
     @PostMapping
-    public ResponseEntity<DogBreedDto> createDog(@RequestBody DogBreedDto dogBreedDto){
+    public ResponseEntity<DogBreedDto> createDog(@Valid @RequestBody DogBreedDto dogBreedDto){
         try{
             return new ResponseEntity<>(dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
         }catch(RuntimeException e){
@@ -75,7 +76,7 @@ public class DogBreedController {
     }
 
     @PutMapping("/{breedId}")
-    public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId, @RequestBody DogBreedDto dogBreedDto){
+    public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId,@Valid @RequestBody DogBreedDto dogBreedDto){
         try{
             return ResponseEntity.ok(dogBreedService.updateDogBreed(breedId, dogBreedDto));
         }catch(RuntimeException e){
