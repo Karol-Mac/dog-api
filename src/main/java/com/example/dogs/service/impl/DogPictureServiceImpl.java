@@ -3,7 +3,8 @@ package com.example.dogs.service.impl;
 import com.example.dogs.entity.DogBreed;
 import com.example.dogs.entity.DogPicture;
 import com.example.dogs.exception.DogApiBadRequestException;
-import com.example.dogs.payload.DogPictureDto;
+import com.example.dogs.payload.DogPictureDtoByte;
+import com.example.dogs.payload.DogPictureDtoString;
 import com.example.dogs.repositories.DogBreedRepository;
 import com.example.dogs.repositories.DogPictureRepository;
 import com.example.dogs.service.DogPictureService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -70,11 +72,11 @@ public class DogPictureServiceImpl implements DogPictureService {
     }
 
     @Override
-    public DogPictureDto retrieveDogPicture(long breedId, long pictureId) {
+    public DogPictureDtoByte retrieveDogPicture(long breedId, long pictureId) {
         DogPicture dogPicture = getDogPicture(pictureId);
         DogBreed dogBreed = getDogBreed(breedId);
 
-        return mapper.map(dogPicture, DogPictureDto.class);
+        return mapper.map(dogPicture, DogPictureDtoByte.class);
     }
 
     @Override
@@ -88,16 +90,42 @@ public class DogPictureServiceImpl implements DogPictureService {
     }
 
 
-
+    // get all pictures related to given dog breed - as (normal) byte[]
     @Override
-    public List<DogPictureDto> getBreedPictures(long breedId) {
+    public List<DogPictureDtoByte> getBreedPicturesByte(long breedId) {
 
         List<DogPicture> dogPictures = dogPictureRepository.findAll();
 
         return dogPictures.stream()
                 .filter(picture -> picture.getDogBreed().getId() == breedId)
-                .map(dogPicture -> mapper.map(dogPicture, DogPictureDto.class))
+                .map(dogPicture -> {
+
+                    DogPictureDtoByte picture = new DogPictureDtoByte();
+
+                    picture.setId(dogPicture.getId());
+                    picture.setFileName(dogPicture.getFileName());
+                    picture.setImage(dogPicture.getImage());
+                    return picture;
+                })
                 .toList();
+    }
+
+    // get all pictures related to given dog breed - as base64 encoded string
+    @Override
+    public List<DogPictureDtoString> getBreedPicturesString(long breedId) {
+        List<DogPicture> dogPictures = dogPictureRepository.findAll();
+
+        return dogPictures.stream()
+                .filter(picture -> picture.getDogBreed().getId() == breedId)
+                .map(dogPicture -> {
+                    String encodedImage = Base64.getEncoder().encodeToString(dogPicture.getImage());
+
+                    DogPictureDtoString picture = new DogPictureDtoString();
+                    picture.setId(dogPicture.getId());
+                    picture.setFileName(dogPicture.getFileName());
+                    picture.setImage(encodedImage);
+                    return picture;
+                }).toList();
     }
 
     @Override
@@ -119,6 +147,18 @@ public class DogPictureServiceImpl implements DogPictureService {
         dogPictureRepository.delete(dogPicture);
 
         return "Picture "+dogPicture.getFileName()+" deleted successfully";
+    }
+
+    @Override
+    public String deleteAllDogPictures(long breedId) {
+        DogBreed dogBreed = getDogBreed(breedId);
+
+        List<DogPicture> pictures = dogPictureRepository.findAll().stream()
+                .filter(picture -> picture.getDogBreed().equals(dogBreed)).toList();
+
+        dogPictureRepository.deleteAll(pictures);
+
+        return "Successfully removed all pictures from dog breed id = "+breedId;
     }
 
     private DogBreed getDogBreed(long breedId) {

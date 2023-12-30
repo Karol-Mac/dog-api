@@ -2,7 +2,8 @@ package com.example.dogs.controller;
 
 import com.example.dogs.exception.DogApiBadRequestException;
 import com.example.dogs.exception.DogApiNotFoundException;
-import com.example.dogs.payload.DogPictureDto;
+import com.example.dogs.payload.DogPictureDtoByte;
+import com.example.dogs.payload.DogPictureDtoString;
 import com.example.dogs.service.DogPictureService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -63,8 +64,8 @@ public class DogPictureController {
     }
 
     @GetMapping("/{pictureId}")
-    ResponseEntity<DogPictureDto> getPictureObject(@PathVariable long breedId,
-                                                   @PathVariable long pictureId ) {
+    ResponseEntity<DogPictureDtoByte> getPictureObject(@PathVariable long breedId,
+                                                       @PathVariable long pictureId ) {
         try {
             return ResponseEntity.ok(dogPictureService.retrieveDogPicture(breedId, pictureId));
         }catch(RuntimeException e){
@@ -72,10 +73,19 @@ public class DogPictureController {
         }
     }
 
-    @GetMapping
-    ResponseEntity<List<DogPictureDto>> getAllPictures(@PathVariable long breedId){
+    @GetMapping("/byte")
+    ResponseEntity<List<DogPictureDtoByte>> getAllPicturesByte(@PathVariable long breedId){
         try {
-        return ResponseEntity.ok(dogPictureService.getBreedPictures(breedId));
+        return ResponseEntity.ok(dogPictureService.getBreedPicturesByte(breedId));
+        }catch(RuntimeException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure while trying to access all breed pictures");
+        }
+    }
+
+    @GetMapping("/string")
+    ResponseEntity<List<DogPictureDtoString>> getAllPicturesString(@PathVariable long breedId){
+        try {
+            return ResponseEntity.ok(dogPictureService.getBreedPicturesString(breedId));
         }catch(RuntimeException e){
             throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure while trying to access all breed pictures");
         }
@@ -85,7 +95,7 @@ public class DogPictureController {
 //    @GetMapping
 //    public ResponseEntity<?> getAllPictures(@PathVariable long breedId){
 //
-//        var images = dogPictureService.getBreedPictures(breedId);
+//        var images = dogPictureService.getBreedPicturesByte(breedId);
 //
 //        return ResponseEntity.status(HttpStatus.OK)
 //                .contentType(MediaType.IMAGE_PNG)
@@ -110,6 +120,15 @@ public class DogPictureController {
             return ResponseEntity.ok(dogPictureService.deleteDogPicture(pictureId));
         }catch(RuntimeException e){
             throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to delete picture /dogs/"+breedId+"/pictures"+pictureId);
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllPictures(@PathVariable long breedId){
+        try{
+            return ResponseEntity.ok(dogPictureService.deleteAllDogPictures(breedId));
+        }catch(RuntimeException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to delete pictures /dogs/"+breedId+"/pictures");
         }
     }
 

@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DogPictureDto {
+public class DogPictureDtoString {
 
     private long id;
 
-    private byte[] image;
+    private String image;
 
     private String fileName;
 }
+

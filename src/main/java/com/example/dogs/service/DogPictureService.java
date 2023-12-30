@@ -1,7 +1,7 @@
 package com.example.dogs.service;
 
-import com.example.dogs.entity.DogPicture;
-import com.example.dogs.payload.DogPictureDto;
+import com.example.dogs.payload.DogPictureDtoByte;
+import com.example.dogs.payload.DogPictureDtoString;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ public interface DogPictureService {
      * @param pictureId - the picture id of the dog
      * @return - the DogPicture object (not only photo)
      */
-    DogPictureDto retrieveDogPicture(long breedId, long pictureId);
+    DogPictureDtoByte retrieveDogPicture(long breedId, long pictureId);
 
 
     /**
@@ -32,9 +32,14 @@ public interface DogPictureService {
      * @param breedId - the breed id of the dog
      * @return - all DogPictures (objects) of specific breed
      */
-    List<DogPictureDto> getBreedPictures(long breedId);
+    List<DogPictureDtoByte> getBreedPicturesByte(long breedId);
+
+    List<DogPictureDtoString> getBreedPicturesString(long breedId);
 
     String deleteDogPicture(long pictureId);
+
+    String deleteAllDogPictures(long pictureId);
+
 
     byte[] updateDogPicture(long pictureId, MultipartFile image) throws IOException;
 }
