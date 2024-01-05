@@ -1,10 +1,8 @@
 package com.example.dogs.enums;
 
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
 public enum BehaviourType {
     FRIENDLY("FRIENDLY"),
     RESERVED("RESERVED"),

@@ -14,4 +14,9 @@ public interface DogBreedService {
     DogBreedDto updateDogBreed(long breedId, DogBreedDto dogBreedDto);
 
     String deleteDogBreed(long breedId);
+
+    List<DogBreedDto> filterDogBreeds(List<String> sizes,
+                                             List<String> barkingFrequencies, List<String> furTypes,
+                                             List<String> behaviourTypes);
+
 }

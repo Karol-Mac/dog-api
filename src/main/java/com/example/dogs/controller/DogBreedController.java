@@ -1,8 +1,11 @@
 package com.example.dogs.controller;
 
 
+import com.example.dogs.filters.DogBreedFilter;
+import com.example.dogs.filters.UserPreference;
 import com.example.dogs.payload.DogBreedDto;
 import com.example.dogs.service.DogBreedService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +17,19 @@ import com.example.dogs.exception.DogApiBadRequestException;
 import com.example.dogs.exception.DogApiNotFoundException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/dogs")
 public class DogBreedController {
 
     private final DogBreedService dogBreedService;
 
-    public DogBreedController(DogBreedService dogBreedService) {
+    private final DogBreedFilter dogBreedFilter;
+
+    public DogBreedController(DogBreedService dogBreedService, DogBreedFilter dogBreedFilter) {
         this.dogBreedService = dogBreedService;
+        this.dogBreedFilter = dogBreedFilter;
     }
 
-    @GetMapping("/dogs")
+    @GetMapping
     public ResponseEntity<List<DogBreedDto>> getDogs(){
         try {
             return ResponseEntity.ok(dogBreedService.getAllDogBreeds());
@@ -32,7 +38,7 @@ public class DogBreedController {
         }
     }
 
-    @GetMapping("/dogs/{breedId}")
+    @GetMapping("/{breedId}")
     public ResponseEntity<DogBreedDto> getDogById(@PathVariable Long breedId){
         try {
             return ResponseEntity.ok(dogBreedService.getDogBreed(breedId));
@@ -41,8 +47,27 @@ public class DogBreedController {
         }
     }
 
-    @PostMapping("/dogs")
-    public ResponseEntity<DogBreedDto> createDog(@RequestBody DogBreedDto dogBreedDto){
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<DogBreedDto>> filterDogs(
+                        @RequestParam(required = false, name = "sizes") List<String> sizes,
+                        @RequestParam(required = false, name = "barkingFrequencies") List<String> barkingFrequencies,
+                        @RequestParam(required = false, name = "furTypes") List<String> furTypes,
+                        @RequestParam(required = false, name = "behaviourTypes") List<String> behaviourTypes){
+
+        return ResponseEntity.ok(dogBreedService.filterDogBreeds(sizes,
+                                    barkingFrequencies, furTypes, behaviourTypes));
+    }
+
+    @GetMapping("/filterPreference")
+    public List<DogBreedDto> filterDogs(@RequestBody List<UserPreference> userPreferenceList) {
+        return dogBreedFilter.filterDogBreeds(userPreferenceList);
+    }
+
+
+
+    @PostMapping
+    public ResponseEntity<DogBreedDto> createDog(@Valid @RequestBody DogBreedDto dogBreedDto){
         try{
             return new ResponseEntity<>(dogBreedService.createDogBreed(dogBreedDto), HttpStatus.CREATED);
         }catch(RuntimeException e){
@@ -50,16 +75,17 @@ public class DogBreedController {
         }
     }
 
-    @PutMapping("/dogs/{breedId}")
-    public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId, @RequestBody DogBreedDto dogBreedDto){
+    @PutMapping("/{breedId}")
+    public ResponseEntity<DogBreedDto> updateDog(@PathVariable Long breedId,@Valid @RequestBody DogBreedDto dogBreedDto){
         try{
             return ResponseEntity.ok(dogBreedService.updateDogBreed(breedId, dogBreedDto));
         }catch(RuntimeException e){
-            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to update dog breed with id == "+breedId);
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST,
+                    "Failure to update dog breed with id == "+breedId);
         }
     }
 
-    @DeleteMapping("/dogs/{breedId}")
+    @DeleteMapping("/{breedId}")
     public ResponseEntity<String> deleteDog(@PathVariable Long breedId){
         try{
             return ResponseEntity.ok(dogBreedService.deleteDogBreed(breedId));
