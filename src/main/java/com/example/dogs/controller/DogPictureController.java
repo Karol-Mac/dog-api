@@ -2,6 +2,8 @@ package com.example.dogs.controller;
 
 import com.example.dogs.exception.DogApiBadRequestException;
 import com.example.dogs.exception.DogApiNotFoundException;
+import com.example.dogs.exception.DogBreedPictureException;
+import com.example.dogs.exception.DogApiMultipartException;
 import com.example.dogs.payload.DogPictureDto;
 import com.example.dogs.service.DogPictureService;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -29,23 +32,29 @@ public class DogPictureController {
     }
 
     @PostMapping("/single")
-    ResponseEntity<Long> addSinglePicture(@RequestParam("image")
-                                          @NotNull(message = "image can not be null") MultipartFile image,
-                                          @PathVariable long breedId) {
+    ResponseEntity<Long> addPicture(@RequestParam("image") MultipartFile image,
+                                      @PathVariable long breedId) {
         try{
             return ResponseEntity.ok(dogPictureService.addDogPicture(image, breedId));
-        }catch(RuntimeException | IOException e){
-            throw new DogApiInternalServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Picture addition failure");
+        }catch (MultipartException e) {
+            throw new DogApiInternalServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Picture 1 addtion failure");
+        }catch (IOException e){
+            throw new DogApiInternalServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Picture 2 addtion failure");
+        }catch (RuntimeException e){
+            throw new DogApiInternalServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Picture 2 addtion failure");
         }
     }
 
 
 
     @PostMapping
-    ResponseEntity<List<Long>> addMultiplePictures(@RequestParam("images")
-                                      @NotNull(message = "images can not be null") MultipartFile[] image,
-                                      @PathVariable long breedId) throws IOException {
-        return ResponseEntity.ok(dogPictureService.addMultipleDogPictures(image, breedId));
+    ResponseEntity<List<Long>> addMultiplePictures(@RequestParam("images") MultipartFile[] image,
+                                      @PathVariable long breedId) {
+        try{
+            return ResponseEntity.ok(dogPictureService.addMultipleDogPictures(image, breedId));
+        }catch(IOException e){
+            throw new DogApiMultipartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failure while trying to access all breed pictures");
+        }
     }
 
     @GetMapping("/{pictureId}/image")
@@ -94,13 +103,16 @@ public class DogPictureController {
 
     public ResponseEntity<?> updateDogPicture(@PathVariable long breedId,
                                        @PathVariable long pictureId,
-                                       @RequestParam @NotNull(message = "add file to update") MultipartFile image) throws IOException {
+                                       @RequestParam MultipartFile image){
+        try{
+            byte[] data = dogPictureService.updateDogPicture(pictureId, image);
 
-        byte[] data = dogPictureService.updateDogPicture(pictureId, image);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
-                .body(data);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
+                    .body(data);
+        }catch(IOException e){
+            throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure while trying to access all breed pictures");
+        }
     }
 
     @DeleteMapping("/{pictureId}")
@@ -112,5 +124,5 @@ public class DogPictureController {
             throw new DogApiBadRequestException(HttpStatus.BAD_REQUEST, "Failure to delete picture /dogs/"+breedId+"/pictures"+pictureId);
         }
     }
-
+  
 }
